@@ -72,7 +72,7 @@ const Collection = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        contentContainerStyle={{paddingHorizontal: wScale(10)}}
+        contentContainerStyle={{padding: wScale(10)}}
         ListEmptyComponent={!loading ? EmptyView : null}
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
         ItemSeparatorComponent={ItemSeparatorComponent}

@@ -39,7 +39,7 @@ const Favorites = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        contentContainerStyle={{paddingHorizontal: wScale(10)}}
+        contentContainerStyle={{padding: wScale(10)}}
         ListEmptyComponent={<EmptyView msg={strings.no_favorites} />}
         ItemSeparatorComponent={ItemSeparatorComponent}
         showsVerticalScrollIndicator={false}
