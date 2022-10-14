@@ -13,6 +13,8 @@ interface Props {
   description: string;
   address: string;
   tokenId: string;
+  onPressFavorite: (id: string, data?: any) => void;
+  isFavorite?: boolean;
 }
 
 const NFTCard: FC<Props> = ({
@@ -20,7 +22,9 @@ const NFTCard: FC<Props> = ({
   name,
   description,
   address,
-  //   tokenId,
+  onPressFavorite,
+  tokenId,
+  isFavorite = false,
 }) => {
   return (
     <View style={styles.container}>
@@ -52,11 +56,20 @@ const NFTCard: FC<Props> = ({
               {description}
             </NFTText>
           </View>
-          <Pressable>
+          <Pressable
+            onPress={() =>
+              onPressFavorite(tokenId, {
+                img,
+                name,
+                description,
+                address,
+                id: tokenId,
+              })
+            }>
             <FavoriteIcon
-              focused={false}
+              focused={isFavorite}
               size={wScale(20)}
-              color={Colors.GREY}
+              color={isFavorite ? Colors.RED : Colors.GREY}
             />
           </Pressable>
         </View>
