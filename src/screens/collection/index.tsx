@@ -1,10 +1,11 @@
-import {View, FlatList, ListRenderItem, ActivityIndicator} from 'react-native';
-import React, {FC, useReducer, useState} from 'react';
+import {View, FlatList, ActivityIndicator} from 'react-native';
+import React, {FC, useContext, useEffect, useState} from 'react';
 import {hScale, wScale} from '../../utils';
 import NFTCard from '../../components/nftCard';
 import {styles} from './styles';
 import {EmptyView} from '../../components/emptyView';
-import {initialState, reducer} from '../../data/reducer';
+import {NFTContext} from '../../data/nftContext';
+import {actions} from '../../data/actions';
 
 const ItemSeparatorComponent: FC = () => <View style={{height: hScale(10)}} />;
 
@@ -125,16 +126,37 @@ const DATA = [
 ];
 
 const Collection = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  console.log(state.collections);
+  const {
+    state: {collections, favorites},
+    dispatch,
+  }: any = useContext(NFTContext);
+
+  const onPressFavorite = (id: string, data: any = {}) => {
+    if (favorites[id] !== undefined) {
+      dispatch({type: actions.REMOVE_FAVORITE, payload: id});
+    } else {
+      dispatch({type: actions.ADD_FAVORITE, payload: {id, data}});
+    }
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      dispatch({type: actions.SAVE_TO_COLLECTION, payload: DATA});
+      setLoading(false);
+    }, 2000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [loading, setLoading] = useState(true);
-  const renderItem: ListRenderItem<number> | null | undefined = ({item}) => (
+  const renderItem: any = ({item}: {item: any}) => (
     <NFTCard
       img={item?.imageUrl}
       name={item?.name}
       description={item?.description}
       address={item?.collectionAddress}
-      tokenId={''}
+      tokenId={item?.collectionTokenId}
+      onPressFavorite={onPressFavorite}
+      isFavorite={favorites[item?.collectionTokenId] !== undefined}
     />
   );
 
@@ -142,13 +164,14 @@ const Collection = () => {
     <View style={styles.container}>
       <FlatList
         contentContainerStyle={{paddingHorizontal: wScale(10)}}
-        ListEmptyComponent={loading ? EmptyView : null}
+        ListEmptyComponent={!loading ? EmptyView : null}
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
         ItemSeparatorComponent={ItemSeparatorComponent}
         showsVerticalScrollIndicator={false}
         numColumns={2}
-        data={DATA}
+        data={collections.slice()}
         renderItem={renderItem}
+        keyExtractor={(item: any) => item?.collectionTokenId?.toString()}
       />
     </View>
   );
