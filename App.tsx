@@ -1,120 +1,75 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
+import React, {useEffect, useReducer} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {FavoriteIcon} from './src/components/favoriteIcon';
+import {HomeIcon} from './src/components/homeIcon';
+import {Collection} from './src/screens/collection';
+import {Favorites} from './src/screens/favorites';
+import {initialState, reducer} from './src/data/reducer';
+import {NFTContext} from './src/data/nftContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {actions} from './src/data/actions';
 
-import React, {type PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const Tab = createBottomTabNavigator();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const ScreenOptions = ({route}: {route: any}) => ({
+  tabBarIcon: ({
+    focused,
+    color,
+    size,
+  }: {
+    focused: boolean;
+    color: any;
+    size: any;
+  }) => {
+    if (route.name === 'Collection') {
+      return <HomeIcon focused={focused} size={size} color={color} />;
+    } else if (route.name === 'Favorites') {
+      return <FavoriteIcon focused={focused} size={size} color={color} />;
+    }
 
-const Section: React.FC<
-  PropsWithChildren<{
-    title: string;
-  }>
-> = ({children, title}) => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
-
-const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+    return null;
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  tabBarActiveTintColor: 'tomato',
+  tabBarInactiveTintColor: 'gray',
 });
 
-export default App;
+export default function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    AsyncStorage.getItem('@nftapp:favorites')
+      .then(res => {
+        if (res) {
+          const data = JSON.parse(res);
+          dispatch({type: actions.SAVE_FAVORITES, payload: data});
+        }
+      })
+      .catch(err => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem('@nftapp:favorites', JSON.stringify(state.favorites));
+  }, [state.favorites]);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <NFTContext.Provider value={{state, dispatch}}>
+        <NavigationContainer>
+          <StatusBar barStyle={'dark-content'} />
+          <Tab.Navigator screenOptions={ScreenOptions}>
+            <Tab.Screen name="Collection" component={Collection} />
+            <Tab.Screen name="Favorites" component={Favorites} />
+          </Tab.Navigator>
+        </NavigationContainer>
+      </NFTContext.Provider>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
