@@ -7,7 +7,7 @@ import React, {FC} from 'react';
 
 const ErrorView: FC = () => (
   <View style={{paddingHorizontal: wScale(20)}}>
-    <NFTText color={Colors.ERROR} weight={'bold'} size={hScale(16)}>
+    <NFTText color={Colors.RED} weight={'bold'} size={hScale(16)}>
       {strings.error_occured}
     </NFTText>
   </View>

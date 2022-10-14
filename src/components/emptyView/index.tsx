@@ -4,9 +4,13 @@ import {hScale} from '../../utils';
 import {Colors} from '../../utils';
 import {NFTText} from '../nftText';
 
-const EmptyView: FC = () => (
+interface Props {
+  msg?: string;
+}
+
+const EmptyView: FC<Props> = ({msg}) => (
   <NFTText color={Colors.BLACK} weight={'500'} size={hScale(16)}>
-    {strings.no_nfts_found}
+    {msg ?? strings.no_nfts_found}
   </NFTText>
 );
 

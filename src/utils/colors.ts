@@ -2,7 +2,7 @@ const Colors = {
   BLACK: '#000000',
   WHITE: '#FFFFFF',
   GREY: '#989898',
-  ERROR: '#ff0000',
+  RED: '#ff0000',
   WARNING: '#FFFF00',
 };
 
